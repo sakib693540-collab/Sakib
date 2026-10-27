@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="woodBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A87248" />
+      <stop offset="50%" stop-color="#98643D" />
+      <stop offset="100%" stop-color="#7A4B28" />
+    </linearGradient>
+    <radialGradient id="creamSurface" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FAF3E4" />
+      <stop offset="100%" stop-color="#F5E8CF" />
+    </radialGradient>
+    <radialGradient id="emeraldPiece" cx="35%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#5CE0A2" />
+      <stop offset="40%" stop-color="#168653" />
+      <stop offset="100%" stop-color="#0B4F30" />
+    </radialGradient>
+    <radialGradient id="redPiece" cx="35%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#F98F8F" />
+      <stop offset="40%" stop-color="#C93636" />
+      <stop offset="100%" stop-color="#7A1A1A" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Natural Wood Frame -->
+  <rect x="0" y="0" width="512" height="512" rx="108" fill="url(#woodBorder)" />
+  <rect x="28" y="28" width="456" height="456" rx="84" fill="url(#creamSurface)" stroke="#D8C09A" stroke-width="6" />
+
+  <!-- Traditional Sholo Guti Board Lines (#916B43) -->
+  <g stroke="#916B43" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Top Triangle -->
+    <polygon points="150,76 362,76 256,164" />
+    <!-- Main Square -->
+    <rect x="116" y="164" width="280" height="184" />
+    <line x1="116" y1="256" x2="396" y2="256" />
+    <line x1="256" y1="76" x2="256" y2="436" />
+    <line x1="116" y1="164" x2="396" y2="348" />
+    <line x1="396" y1="164" x2="116" y2="348" />
+    <!-- Bottom Triangle -->
+    <polygon points="256,348 150,436 362,436" />
+  </g>
+
+  <!-- Top Red Pieces (#C93636) -->
+  <circle cx="256" cy="112" r="24" fill="url(#redPiece)" stroke="#FFF1F2" stroke-width="3" />
+  <circle cx="176" cy="164" r="24" fill="url(#redPiece)" stroke="#FFF1F2" stroke-width="3" />
+  <circle cx="336" cy="164" r="24" fill="url(#redPiece)" stroke="#FFF1F2" stroke-width="3" />
+
+  <!-- Center Golden Hub -->
+  <circle cx="256" cy="256" r="18" fill="#F59E0B" stroke="#FFFBEB" stroke-width="4" />
+
+  <!-- Bottom Emerald Green Pieces (#168653) -->
+  <circle cx="176" cy="348" r="24" fill="url(#emeraldPiece)" stroke="#ECFDF5" stroke-width="3" />
+  <circle cx="336" cy="348" r="24" fill="url(#emeraldPiece)" stroke="#ECFDF5" stroke-width="3" />
+  <circle cx="256" cy="400" r="24" fill="url(#emeraldPiece)" stroke="#ECFDF5" stroke-width="3" />
+</svg>

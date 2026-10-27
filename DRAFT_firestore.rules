@@ -1,0 +1,305 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 1: Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidLanguage(lang) {
+      return lang is string && lang.size() == 2 && (
+        lang == 'bn' || lang == 'en' || lang == 'hi' || lang == 'ur' || lang == 'ar' ||
+        lang == 'es' || lang == 'fr' || lang == 'pt' || lang == 'zh' || lang == 'ne'
+      );
+    }
+
+    // Validation Blueprint: PublicProfile
+    function isValidPublicProfile(data) {
+      return data.keys().hasAll([
+        'uid', 'username', 'avatar', 'preferredLanguage', 'status',
+        'gamesPlayed', 'wins', 'losses', 'draws', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'uid', 'username', 'avatar', 'preferredLanguage', 'status',
+        'gamesPlayed', 'wins', 'losses', 'draws', 'createdAt', 'updatedAt'
+      ]) &&
+      isValidId(data.uid) &&
+      data.uid == request.auth.uid &&
+      data.username is string && data.username.size() >= 2 && data.username.size() <= 32 &&
+      data.avatar is string && data.avatar.size() >= 1 && data.avatar.size() <= 64 &&
+      isValidLanguage(data.preferredLanguage) &&
+      data.status is string && data.status.size() <= 16 && (
+        data.status == 'online' || data.status == 'offline' ||
+        data.status == 'searching' || data.status == 'in_game'
+      ) &&
+      data.gamesPlayed is int && data.gamesPlayed >= 0 && data.gamesPlayed <= 1000000 &&
+      data.wins is int && data.wins >= 0 && data.wins <= 1000000 &&
+      data.losses is int && data.losses >= 0 && data.losses <= 1000000 &&
+      data.draws is int && data.draws >= 0 && data.draws <= 1000000 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: UserPrivate (PII Isolated)
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll([
+        'uid', 'email', 'preferredLanguage', 'soundEnabled',
+        'showCoordinates', 'driveBackupFileId', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'uid', 'email', 'preferredLanguage', 'soundEnabled',
+        'showCoordinates', 'driveBackupFileId', 'createdAt', 'updatedAt'
+      ]) &&
+      isValidId(data.uid) &&
+      data.uid == request.auth.uid &&
+      data.email is string && data.email.size() >= 0 && data.email.size() <= 254 &&
+      isValidLanguage(data.preferredLanguage) &&
+      data.soundEnabled is bool &&
+      data.showCoordinates is bool &&
+      data.driveBackupFileId is string && data.driveBackupFileId.size() <= 128 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: FriendRequest
+    function isValidFriendRequest(data) {
+      return data.keys().hasAll([
+        'requestId', 'fromUid', 'fromUsername', 'fromAvatar',
+        'toUid', 'toUsername', 'toAvatar', 'status', 'roomInviteCode',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'requestId', 'fromUid', 'fromUsername', 'fromAvatar',
+        'toUid', 'toUsername', 'toAvatar', 'status', 'roomInviteCode',
+        'createdAt', 'updatedAt'
+      ]) &&
+      isValidId(data.requestId) &&
+      isValidId(data.fromUid) &&
+      isValidId(data.toUid) &&
+      data.fromUid != data.toUid &&
+      data.fromUsername is string && data.fromUsername.size() >= 2 && data.fromUsername.size() <= 32 &&
+      data.fromAvatar is string && data.fromAvatar.size() >= 1 && data.fromAvatar.size() <= 64 &&
+      data.toUsername is string && data.toUsername.size() >= 2 && data.toUsername.size() <= 32 &&
+      data.toAvatar is string && data.toAvatar.size() >= 1 && data.toAvatar.size() <= 64 &&
+      data.status is string && data.status.size() <= 16 && (
+        data.status == 'pending' || data.status == 'accepted' || data.status == 'declined'
+      ) &&
+      data.roomInviteCode is string && data.roomInviteCode.size() <= 32 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: MatchHistoryRecord
+    function isValidMatchHistory(data) {
+      return data.keys().hasAll([
+        'matchId', 'ownerUid', 'opponentUid', 'opponentName', 'mode',
+        'roomCode', 'playerNumber', 'result', 'reason', 'totalMoves',
+        'remainingOwnPieces', 'remainingOpponentPieces', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'matchId', 'ownerUid', 'opponentUid', 'opponentName', 'mode',
+        'roomCode', 'playerNumber', 'result', 'reason', 'totalMoves',
+        'remainingOwnPieces', 'remainingOpponentPieces', 'createdAt'
+      ]) &&
+      isValidId(data.matchId) &&
+      isValidId(data.ownerUid) &&
+      data.ownerUid == request.auth.uid &&
+      data.opponentUid is string && data.opponentUid.size() >= 1 && data.opponentUid.size() <= 128 &&
+      data.opponentName is string && data.opponentName.size() >= 1 && data.opponentName.size() <= 64 &&
+      data.mode is string && data.mode.size() <= 16 && (
+        data.mode == 'online' || data.mode == 'ai' || data.mode == 'local'
+      ) &&
+      data.roomCode is string && data.roomCode.size() <= 32 &&
+      data.playerNumber is int && (data.playerNumber == 1 || data.playerNumber == 2) &&
+      data.result is string && data.result.size() <= 16 && (
+        data.result == 'win' || data.result == 'loss' || data.result == 'draw'
+      ) &&
+      data.reason is string && data.reason.size() <= 200 &&
+      data.totalMoves is int && data.totalMoves >= 0 && data.totalMoves <= 10000 &&
+      data.remainingOwnPieces is int && data.remainingOwnPieces >= 0 && data.remainingOwnPieces <= 16 &&
+      data.remainingOpponentPieces is int && data.remainingOpponentPieces >= 0 && data.remainingOpponentPieces <= 16 &&
+      data.createdAt is timestamp;
+    }
+
+    // Validation Blueprint: PlayerReport
+    function isValidPlayerReport(data) {
+      return data.keys().hasAll([
+        'reportId', 'reporterUid', 'reportedUid', 'reportedUsername',
+        'reason', 'actionType', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'reportId', 'reporterUid', 'reportedUid', 'reportedUsername',
+        'reason', 'actionType', 'createdAt'
+      ]) &&
+      isValidId(data.reportId) &&
+      isValidId(data.reporterUid) &&
+      isValidId(data.reportedUid) &&
+      data.reporterUid == request.auth.uid &&
+      data.reporterUid != data.reportedUid &&
+      data.reportedUsername is string && data.reportedUsername.size() >= 1 && data.reportedUsername.size() <= 64 &&
+      data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 300 &&
+      data.actionType is string && data.actionType.size() <= 16 && (
+        data.actionType == 'report' || data.actionType == 'block'
+      ) &&
+      data.createdAt is timestamp;
+    }
+
+    // 1. Public Profiles Collection
+    match /publicProfiles/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if isSignedIn() && resource.data.uid is string && resource.data.uid.size() <= 128;
+
+      allow create: if isSignedIn() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidPublicProfile(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidPublicProfile(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          // Action 1: Update profile details, presence status, or language
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'username', 'avatar', 'preferredLanguage', 'status', 'updatedAt'
+          ]) ||
+          // Action 2: Update match statistics and status
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'gamesPlayed', 'wins', 'losses', 'draws', 'status', 'updatedAt'
+          ])
+        );
+
+      allow delete: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+    }
+
+    // 2. Strictly Isolated Private User Data
+    match /userPrivate/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+      allow list: if false;
+
+      allow create: if isSignedIn() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidUserPrivate(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidUserPrivate(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'email', 'preferredLanguage', 'soundEnabled', 'showCoordinates', 'driveBackupFileId', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+    }
+
+    // 3. Friend Requests & Room Invitations
+    match /friendRequests/{requestId} {
+      allow get: if isSignedIn() && isValidId(requestId) && (
+        existing().fromUid == request.auth.uid || existing().toUid == request.auth.uid
+      );
+      allow list: if isSignedIn() && (
+        resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid
+      );
+
+      allow create: if isSignedIn() &&
+        isValidId(requestId) &&
+        isValidFriendRequest(incoming()) &&
+        incoming().requestId == requestId &&
+        incoming().fromUid == request.auth.uid &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        exists(/databases/$(database)/documents/publicProfiles/$(incoming().fromUid)) &&
+        exists(/databases/$(database)/documents/publicProfiles/$(incoming().toUid));
+
+      allow update: if isSignedIn() &&
+        isValidId(requestId) &&
+        isValidFriendRequest(incoming()) &&
+        incoming().requestId == existing().requestId &&
+        incoming().fromUid == existing().fromUid &&
+        incoming().toUid == existing().toUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        existing().status != 'declined' && (
+          // Action 1: Recipient accepts or declines a pending friend request
+          (
+            existing().status == 'pending' &&
+            existing().toUid == request.auth.uid &&
+            (incoming().status == 'accepted' || incoming().status == 'declined') &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ) ||
+          // Action 2: Either friend sends/clears a private room invite code on an accepted friendship
+          (
+            existing().status == 'accepted' &&
+            incoming().status == 'accepted' &&
+            (existing().fromUid == request.auth.uid || existing().toUid == request.auth.uid) &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['roomInviteCode', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isSignedIn() && isValidId(requestId) && (
+        existing().fromUid == request.auth.uid || existing().toUid == request.auth.uid
+      );
+    }
+
+    // 4. Match History Collection
+    match /matchHistory/{matchId} {
+      allow get: if isSignedIn() && isValidId(matchId) && existing().ownerUid == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if isSignedIn() &&
+        isValidId(matchId) &&
+        isValidMatchHistory(incoming()) &&
+        incoming().matchId == matchId &&
+        incoming().createdAt == request.time &&
+        exists(/databases/$(database)/documents/publicProfiles/$(request.auth.uid));
+
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(matchId) && existing().ownerUid == request.auth.uid;
+    }
+
+    // 5. Player Reports & Blocks Collection
+    match /playerReports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && existing().reporterUid == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.reporterUid == request.auth.uid;
+
+      allow create: if isSignedIn() &&
+        isValidId(reportId) &&
+        isValidPlayerReport(incoming()) &&
+        incoming().reportId == reportId &&
+        incoming().createdAt == request.time &&
+        exists(/databases/$(database)/documents/publicProfiles/$(request.auth.uid));
+
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(reportId) && existing().reporterUid == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "entities": {
+    "PublicProfile": {
+      "title": "PublicProfile",
+      "description": "Publicly visible player profile and lifetime statistics without PII.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "username": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "avatar": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["bn", "en", "hi", "ur", "ar", "es", "fr", "pt", "zh", "ne"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["online", "offline", "searching", "in_game"]
+        },
+        "gamesPlayed": {
+          "type": "integer"
+        },
+        "wins": {
+          "type": "integer"
+        },
+        "losses": {
+          "type": "integer"
+        },
+        "draws": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "username",
+        "avatar",
+        "preferredLanguage",
+        "status",
+        "gamesPlayed",
+        "wins",
+        "losses",
+        "draws",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Strictly private user account data including email, settings, and Google Drive backup metadata.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["bn", "en", "hi", "ur", "ar", "es", "fr", "pt", "zh", "ne"]
+        },
+        "soundEnabled": {
+          "type": "boolean"
+        },
+        "showCoordinates": {
+          "type": "boolean"
+        },
+        "driveBackupFileId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "preferredLanguage",
+        "soundEnabled",
+        "showCoordinates",
+        "driveBackupFileId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "FriendRequest": {
+      "title": "FriendRequest",
+      "description": "Friend request and room invitation between two authenticated players.",
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fromUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fromUsername": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "fromAvatar": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "toUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "toUsername": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "toAvatar": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "accepted", "declined"]
+        },
+        "roomInviteCode": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "requestId",
+        "fromUid",
+        "fromUsername",
+        "fromAvatar",
+        "toUid",
+        "toUsername",
+        "toAvatar",
+        "status",
+        "roomInviteCode",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MatchHistoryRecord": {
+      "title": "MatchHistoryRecord",
+      "description": "Completed match record owned by a player for cross-device history and statistics.",
+      "type": "object",
+      "properties": {
+        "matchId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "opponentUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "opponentName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["online", "ai", "local"]
+        },
+        "roomCode": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "playerNumber": {
+          "type": "integer",
+          "enum": [1, 2]
+        },
+        "result": {
+          "type": "string",
+          "enum": ["win", "loss", "draw"]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "totalMoves": {
+          "type": "integer"
+        },
+        "remainingOwnPieces": {
+          "type": "integer"
+        },
+        "remainingOpponentPieces": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "matchId",
+        "ownerUid",
+        "opponentUid",
+        "opponentName",
+        "mode",
+        "roomCode",
+        "playerNumber",
+        "result",
+        "reason",
+        "totalMoves",
+        "remainingOwnPieces",
+        "remainingOpponentPieces",
+        "createdAt"
+      ]
+    },
+    "PlayerReport": {
+      "title": "PlayerReport",
+      "description": "Abuse report or player block entry created by an authenticated user.",
+      "type": "object",
+      "properties": {
+        "reportId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "reporterUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "reportedUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "reportedUsername": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "actionType": {
+          "type": "string",
+          "enum": ["report", "block"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "reportId",
+        "reporterUid",
+        "reportedUid",
+        "reportedUsername",
+        "reason",
+        "actionType",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/publicProfiles/{userId}": {
+      "schema": { "$ref": "#/entities/PublicProfile" },
+      "description": "Publicly searchable player profiles without email or PII."
+    },
+    "/userPrivate/{userId}": {
+      "schema": { "$ref": "#/entities/UserPrivate" },
+      "description": "Strictly private user document containing email and settings."
+    },
+    "/friendRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/FriendRequest" },
+      "description": "Friend requests and room invitations between players."
+    },
+    "/matchHistory/{matchId}": {
+      "schema": { "$ref": "#/entities/MatchHistoryRecord" },
+      "description": "Per-user match history records for cross-device statistics."
+    },
+    "/playerReports/{reportId}": {
+      "schema": { "$ref": "#/entities/PlayerReport" },
+      "description": "Player abuse reports and block list entries."
+    }
+  }
+}

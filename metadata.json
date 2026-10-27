@@ -1,0 +1,6 @@
+{
+  "name": "ষোলো গুটি — Sholo Guti Traditional Board Game",
+  "description": "ঐতিহ্যবাহী বাংলার ষোলো গুটি (Sholo Guti) বোর্ড গেম — একক ও দুই খেলোয়াড় মোড, সঠিক নিয়মাবলী এবং গ্রামীণ কাঠের বোর্ড ডিজাইন।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
